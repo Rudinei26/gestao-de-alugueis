@@ -1,21 +1,14 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import Database from "better-sqlite3";
+import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
-// Initialize Database
-const db = new Database("payments.db");
-db.exec(`
-  CREATE TABLE IF NOT EXISTS payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    apartment TEXT NOT NULL,
-    tenant_name TEXT NOT NULL,
-    payment_date TEXT NOT NULL,
-    payment_type TEXT NOT NULL,
-    amount REAL NOT NULL,
-    notes TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
+dotenv.config();
+
+// Initialize Supabase
+const supabaseUrl = process.env.SUPABASE_URL || "";
+const supabaseKey = process.env.SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function startServer() {
   const app = express();
@@ -24,18 +17,22 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-  app.get("/api/payments", (req, res) => {
+  app.get("/api/payments", async (req, res) => {
     try {
-      const stmt = db.prepare("SELECT * FROM payments ORDER BY payment_date DESC");
-      const payments = stmt.all();
-      res.json(payments);
+      const { data, error } = await supabase
+        .from("payments")
+        .select("*")
+        .order("payment_date", { ascending: false });
+
+      if (error) throw error;
+      res.json(data);
     } catch (error) {
       console.error("Error fetching payments:", error);
       res.status(500).json({ error: "Failed to fetch payments" });
     }
   });
 
-  app.post("/api/payments", (req, res) => {
+  app.post("/api/payments", async (req, res) => {
     try {
       const { apartment, tenant_name, payment_date, payment_type, amount, notes } = req.body;
       
@@ -43,38 +40,28 @@ async function startServer() {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const stmt = db.prepare(`
-        INSERT INTO payments (apartment, tenant_name, payment_date, payment_type, amount, notes)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `);
-      
-      const info = stmt.run(apartment, tenant_name, payment_date, payment_type, amount, notes || "");
-      
-      res.json({ 
-        id: info.lastInsertRowid, 
-        apartment, 
-        tenant_name, 
-        payment_date, 
-        payment_type, 
-        amount, 
-        notes 
-      });
+      const { data, error } = await supabase
+        .from("payments")
+        .insert([{ apartment, tenant_name, payment_date, payment_type, amount, notes: notes || "" }])
+        .select();
+
+      if (error) throw error;
+      res.json(data[0]);
     } catch (error) {
       console.error("Error adding payment:", error);
       res.status(500).json({ error: "Failed to add payment" });
     }
   });
 
-  app.delete("/api/payments/:id", (req, res) => {
+  app.delete("/api/payments/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const stmt = db.prepare("DELETE FROM payments WHERE id = ?");
-      const info = stmt.run(id);
-      
-      if (info.changes === 0) {
-        return res.status(404).json({ error: "Payment not found" });
-      }
-      
+      const { error } = await supabase
+        .from("payments")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting payment:", error);
@@ -82,20 +69,35 @@ async function startServer() {
     }
   });
 
-  app.get("/api/stats", (req, res) => {
+  app.get("/api/stats", async (req, res) => {
     try {
-      const totalStmt = db.prepare("SELECT SUM(amount) as total FROM payments");
-      const countStmt = db.prepare("SELECT COUNT(*) as count FROM payments");
-      const methodStmt = db.prepare("SELECT payment_type, COUNT(*) as count, SUM(amount) as total FROM payments GROUP BY payment_type");
+      const { data: payments, error } = await supabase
+        .from("payments")
+        .select("amount, payment_type");
+
+      if (error) throw error;
+
+      const total_revenue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const total_payments = payments.length;
       
-      const total = totalStmt.get() as { total: number };
-      const count = countStmt.get() as { count: number };
-      const methods = methodStmt.all();
+      const by_method_map: Record<string, { count: number, total: number }> = {};
+      payments.forEach(p => {
+        if (!by_method_map[p.payment_type]) {
+          by_method_map[p.payment_type] = { count: 0, total: 0 };
+        }
+        by_method_map[p.payment_type].count++;
+        by_method_map[p.payment_type].total += Number(p.amount);
+      });
+
+      const by_method = Object.entries(by_method_map).map(([type, stats]) => ({
+        payment_type: type,
+        ...stats
+      }));
 
       res.json({
-        total_revenue: total.total || 0,
-        total_payments: count.count || 0,
-        by_method: methods
+        total_revenue,
+        total_payments,
+        by_method
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
