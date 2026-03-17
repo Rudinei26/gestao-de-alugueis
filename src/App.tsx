@@ -58,15 +58,15 @@ export default function App() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-emerald-600 p-2 rounded-lg text-white">
-              <Building2 size={24} />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="bg-emerald-600 p-1.5 sm:p-2 rounded-lg text-white">
+              <Building2 size={20} className="sm:w-6 sm:h-6" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">
-              Gestão de Aluguéis
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-gray-900 truncate max-w-[100px] xs:max-w-[150px] sm:max-w-none">
+              Residencial Hemann
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <MonthlyReport payments={payments} />
             <PaymentForm onSuccess={fetchData} />
           </div>

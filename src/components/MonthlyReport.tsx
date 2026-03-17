@@ -85,10 +85,11 @@ export function MonthlyReport({ payments }: MonthlyReportProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+        className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm whitespace-nowrap"
       >
         <FileText size={20} className="text-blue-600" />
-        Relatório Mensal
+        <span className="hidden xs:inline">Relatório Mensal</span>
+        <span className="xs:hidden">Relatório</span>
       </button>
 
       <AnimatePresence>
@@ -101,54 +102,56 @@ export function MonthlyReport({ payments }: MonthlyReportProps) {
               className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col print:shadow-none print:max-w-none print:max-h-none print:rounded-none"
             >
               {/* Header - Hidden on Print */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-100 print:hidden">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 border-b border-gray-100 print:hidden gap-4">
                 <div className="flex items-center gap-3">
                   <FileText className="text-blue-600" size={24} />
-                  <h2 className="text-xl font-semibold text-gray-900">Gerar Relatório</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Gerar Relatório</h2>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 mr-2">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 mr-auto sm:mr-2">
                     <Calendar size={18} className="text-gray-400" />
                     <input
                       type="month"
-                      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-32 sm:w-auto"
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(e.target.value)}
                     />
                   </div>
                   
-                  <button
-                    onClick={handleShare}
-                    className="flex items-center gap-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    title="Compartilhar"
-                  >
-                    <Share2 size={18} />
-                    Compartilhar
-                  </button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none"
+                      title="Compartilhar"
+                    >
+                      <Share2 size={18} />
+                      <span className="hidden sm:inline">Compartilhar</span>
+                    </button>
 
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    title="Copiar texto"
-                  >
-                    {copied ? <Check size={18} className="text-emerald-600" /> : <Copy size={18} />}
-                    {copied ? 'Copiado!' : 'Copiar'}
-                  </button>
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200 p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none"
+                      title="Copiar texto"
+                    >
+                      {copied ? <Check size={18} className="text-emerald-600" /> : <Copy size={18} />}
+                      <span className="hidden sm:inline">{copied ? 'Copiado!' : 'Copiar'}</span>
+                    </button>
 
-                  <button
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <Printer size={18} />
-                    Imprimir
-                  </button>
-                  
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors ml-2"
-                  >
-                    <X size={24} />
-                  </button>
+                    <button
+                      onClick={handlePrint}
+                      className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white p-2 sm:px-4 sm:py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none"
+                    >
+                      <Printer size={18} />
+                      <span className="hidden sm:inline">Imprimir</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -179,42 +182,44 @@ export function MonthlyReport({ payments }: MonthlyReportProps) {
                   </div>
 
                   {/* Table */}
-                  <table className="w-full text-left border-collapse mb-8">
-                    <thead>
-                      <tr className="border-b-2 border-gray-900">
-                        <th className="py-3 font-bold text-sm uppercase">Apto</th>
-                        <th className="py-3 font-bold text-sm uppercase">Inquilino</th>
-                        <th className="py-3 font-bold text-sm uppercase">Data</th>
-                        <th className="py-3 font-bold text-sm uppercase">Tipo</th>
-                        <th className="py-3 font-bold text-sm uppercase text-right">Valor</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {reportData.payments.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="py-8 text-center text-gray-500 italic">
-                            Nenhum registro encontrado para este período.
-                          </td>
+                  <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                    <table className="w-full text-left border-collapse mb-8 min-w-[500px] sm:min-w-0">
+                      <thead>
+                        <tr className="border-b-2 border-gray-900">
+                          <th className="py-3 font-bold text-sm uppercase">Apto</th>
+                          <th className="py-3 font-bold text-sm uppercase">Inquilino</th>
+                          <th className="py-3 font-bold text-sm uppercase">Data</th>
+                          <th className="py-3 font-bold text-sm uppercase">Tipo</th>
+                          <th className="py-3 font-bold text-sm uppercase text-right">Valor</th>
                         </tr>
-                      ) : (
-                        reportData.payments.map((p) => (
-                          <tr key={p.id} className="text-sm">
-                            <td className="py-3 font-medium">{p.apartment}</td>
-                            <td className="py-3">{p.tenant_name}</td>
-                            <td className="py-3">{new Date(p.payment_date).toLocaleDateString('pt-BR')}</td>
-                            <td className="py-3">{p.payment_type}</td>
-                            <td className="py-3 text-right font-mono">R$ {p.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {reportData.payments.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="py-8 text-center text-gray-500 italic">
+                              Nenhum registro encontrado para este período.
+                            </td>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                    <tfoot>
-                      <tr className="border-t-2 border-gray-900">
-                        <td colSpan={4} className="py-4 font-bold text-right uppercase">Total Geral:</td>
-                        <td className="py-4 text-right font-bold font-mono">R$ {reportData.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                        ) : (
+                          reportData.payments.map((p) => (
+                            <tr key={p.id} className="text-sm">
+                              <td className="py-3 font-medium">{p.apartment}</td>
+                              <td className="py-3">{p.tenant_name}</td>
+                              <td className="py-3">{new Date(p.payment_date).toLocaleDateString('pt-BR')}</td>
+                              <td className="py-3">{p.payment_type}</td>
+                              <td className="py-3 text-right font-mono">R$ {p.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t-2 border-gray-900">
+                          <td colSpan={4} className="py-4 font-bold text-right uppercase">Total Geral:</td>
+                          <td className="py-4 text-right font-bold font-mono">R$ {reportData.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
 
                   {/* Footer */}
                   <div className="mt-12 pt-8 border-t border-gray-200 text-center text-xs text-gray-400">

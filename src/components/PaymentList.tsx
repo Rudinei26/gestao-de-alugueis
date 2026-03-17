@@ -31,7 +31,60 @@ export function PaymentList({ payments, onDelete }: PaymentListProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Mobile View: Card Layout */}
+      <div className="block sm:hidden divide-y divide-gray-100">
+        {filteredPayments.length === 0 ? (
+          <div className="px-6 py-12 text-center text-gray-500">
+            Nenhum pagamento encontrado.
+          </div>
+        ) : (
+          filteredPayments.map((payment) => (
+            <div key={payment.id} className="p-4 space-y-3">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-blue-50 text-blue-600 rounded-md">
+                    <Home size={16} />
+                  </div>
+                  <span className="font-bold text-gray-900">Apto {payment.apartment}</span>
+                </div>
+                <button
+                  onClick={() => onDelete(payment.id)}
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-2 text-gray-700">
+                <User size={16} className="text-gray-400" />
+                <span className="font-medium">{payment.tenant_name}</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="text-lg font-bold text-emerald-600">
+                  R$ {payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                  payment.payment_type === 'Pix' 
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                    : 'bg-amber-50 text-amber-700 border-amber-100'
+                }`}>
+                  <CreditCard size={12} />
+                  {payment.payment_type}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 text-gray-500 text-xs">
+                <Calendar size={14} />
+                {new Date(payment.payment_date).toLocaleDateString('pt-BR')}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop View: Table Layout */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50/50 text-xs uppercase tracking-wider text-gray-500 font-medium">

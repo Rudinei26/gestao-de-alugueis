@@ -58,10 +58,11 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm whitespace-nowrap"
       >
         <Plus size={20} />
-        Novo Pagamento
+        <span className="hidden xs:inline">Novo Pagamento</span>
+        <span className="xs:hidden">Novo</span>
       </button>
 
       <AnimatePresence>
@@ -84,7 +85,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Apartamento</label>
                     <input
@@ -122,7 +123,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
                     <input
